@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>XINIX AXIOM</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+
+body{
+  margin:0;
+  background:#020617;
+  color:white;
+  font-family:Arial,sans-serif;
+  overflow-x:hidden;
+  scroll-behavior:smooth;
+}
+
+/* =========================
+BACKGROUND
+========================= */
+
+.background{
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  overflow:hidden;
+}
+
+.grid-bg{
+  background-image:
+  linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+  linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size:40px 40px;
+}
+
+.orb{
+  position:absolute;
+  border-radius:50%;
+  background:rgba(0,255,255,0.08);
+  filter:blur(25px);
+  animation:float 10s infinite ease-in-out;
+  transition:transform 0.2s linear;
+}
+
+.orb:nth-child(1){
+  width:350px;
+  height:350px;
+  left:-100px;
+  top:50px;
+}
+
+.orb:nth-child(2){
+  width:250px;
+  height:250px;
+  right:-80px;
+  top:300px;
+}
+
+.orb:nth-child(3){
+  width:500px;
+  height:500px;
+  left:30%;
+  bottom:-250px;
+}
+
+@keyframes float{
+
+  0%{
+    transform:translateY(0px);
+  }
+
+  50%{
+    transform:translateY(-40px);
+  }
+
+  100%{
+    transform:translateY(0px);
+  }
+
+}
+
+/* =========================
+LOADER
+========================= */
+
+#loader{
+  position:fixed;
+  inset:0;
+  background:#020617;
+  z-index:99999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  transition:1.5s;
+}
+
+.loader-hidden{
+  opacity:0;
+  pointer-events:none;
+}
+
+.loader-ring{
+  position:absolute;
+  width:260px;
+  height:260px;
+  border-radius:50%;
+  border:1px solid rgba(0,255,255,0.15);
+  animation:spin 10s linear infinite;
+}
+
+.loader-ring:nth-child(2){
+  width:340px;
+  height:340px;
+  animation-direction:reverse;
+  animation-duration:15s;
+}
+
+.loader-ring:nth-child(3){
+  width:420px;
+  height:420px;
+  animation-duration:20s;
+}
+
+@keyframes spin{
+
+  from{
+    transform:rotate(0deg);
+  }
+
+  to{
+    transform:rotate(360deg);
+  }
+
+}
+
+.logo-container{
+  position:relative;
+  width:170px;
+  height:170px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.logo-glow{
+  position:absolute;
+  width:180px;
+  height:180px;
+  border-radius:50%;
+  background:rgba(0,255,255,0.12);
+  filter:blur(40px);
+  animation:pulseGlow 3s infinite ease-in-out;
+}
+
+@keyframes pulseGlow{
+
+  0%{
+    transform:scale(1);
+    opacity:0.5;
+  }
+
+  50%{
+    transform:scale(1.2);
+    opacity:1;
+  }
+
+  100%{
+    transform:scale(1);
+    opacity:0.5;
+  }
+
+}
+
+.logo{
+  width:120px;
+  position:relative;
+  z-index:5;
+  animation:floatLogo 4s infinite ease-in-out;
+}
+
+@keyframes floatLogo{
+
+  0%{
+    transform:translateY(0px);
+  }
+
+  50%{
+    transform:translateY(-8px);
+  }
+
+  100%{
+    transform:translateY(0px);
+  }
+
+}
+
+.loader-title{
+  margin-top:50px;
+  font-size:clamp(2rem,5vw,4rem);
+  font-weight:900;
+  letter-spacing:0.4em;
+  color:#22d3ee;
+  text-align:center;
+}
+
+.loader-text{
+  margin-top:20px;
+  color:#94a3b8;
+  letter-spacing:0.3em;
+  text-align:center;
+  padding:0 20px;
+  animation:pulseText 2s infinite;
+}
+
+@keyframes pulseText{
+
+  0%{
+    opacity:0.4;
+  }
+
+  50%{
+    opacity:1;
+  }
+
+  100%{
+    opacity:0.4;
+  }
+
+}
+
+/* =========================
+UI
+========================= */
+
+.glow{
+  box-shadow:0 0 30px rgba(0,255,255,0.35);
+}
+
+.card{
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  backdrop-filter:blur(20px);
+  transition:0.5s;
+  height:100%;
+}
+
+.card:hover{
+  transform:translateY(-10px);
+  border-color:rgba(0,255,255,0.4);
+  box-shadow:0 0 30px rgba(0,255,255,0.15);
+}
+
+.notification{
+  position:fixed;
+  top:30px;
+  right:30px;
+  background:rgba(0,255,255,0.1);
+  border:1px solid rgba(0,255,255,0.2);
+  padding:18px 24px;
+  border-radius:20px;
+  backdrop-filter:blur(20px);
+  z-index:9999;
+  opacity:0;
+  transform:translateY(-20px);
+  transition:0.4s;
+}
+
+.notification.show{
+  opacity:1;
+  transform:translateY(0px);
+}
+
+/* =========================
+MOBILE
+========================= */
+
+.mobile-menu{
+  display:none;
+}
+
+@media(max-width:768px){
+
+  .desktop-nav{
+    display:none;
+  }
+
+  .mobile-menu{
+    display:flex;
+  }
+
+  .loader-ring:nth-child(1){
+    width:180px;
+    height:180px;
+  }
+
+  .loader-ring:nth-child(2){
+    width:240px;
+    height:240px;
+  }
+
+  .loader-ring:nth-child(3){
+    width:300px;
+    height:300px;
+  }
+
+}
+
+</style>
+</head>
+
+<body class="grid-bg">
+
+<!-- =========================
+LOADER
+========================= -->
+
+<div id="loader">
+
+  <div class="loader-ring"></div>
+  <div class="loader-ring"></div>
+  <div class="loader-ring"></div>
+
+  <div class="logo-container">
+
+    <div class="logo-glow"></div>
+
+    <img
+    src="https://i.imgur.com/6QKQwQW.png"
+    class="logo"
+    alt="XINIX Logo"
+    >
+
+  </div>
+
+  <h1 class="loader-title">
+    XINIX AXIOM
+  </h1>
+
+  <p id="loaderText" class="loader-text">
+    INITIALIZING CONSCIOUSNESS...
+  </p>
+
+</div>
+
+<!-- =========================
+BACKGROUND
+========================= -->
+
+<div class="background">
+
+  <div class="orb"></div>
+  <div class="orb"></div>
+  <div class="orb"></div>
+
+</div>
+
+<!-- NOTIFICATION -->
+
+<div id="notification" class="notification"></div>
+
+<!-- =========================
+NAVBAR
+========================= -->
+
+<nav id="navbar" class="flex justify-between items-center px-6 md:px-12 lg:px-20 py-6 border-b border-white/10 sticky top-0 backdrop-blur-lg bg-black/30 z-50 transition-all duration-300">
+
+<h1 class="text-2xl font-bold tracking-[0.3em]">
+XINIX AXIOM
+</h1>
+
+<div class="desktop-nav gap-8 text-gray-400">
+
+<a href="#home" class="hover:text-cyan-400 transition">
+Home
+</a>
+
+<a href="#research" class="hover:text-cyan-400 transition">
+Research
+</a>
+
+<a href="#technology" class="hover:text-cyan-400 transition">
+Technology
+</a>
+
+<a href="#future" class="hover:text-cyan-400 transition">
+Future
+</a>
+
+<a href="#contact" class="hover:text-cyan-400 transition">
+Contact
+</a>
+
+</div>
+
+<button id="menuBtn" class="mobile-menu text-3xl">
+☰
+</button>
+
+</nav>
+
+<!-- MOBILE NAV -->
+
+<div id="mobileNav" class="hidden flex-col fixed top-20 left-0 w-full bg-black/95 backdrop-blur-xl p-8 gap-6 z-40 text-xl">
+
+<a href="#home">Home</a>
+<a href="#research">Research</a>
+<a href="#technology">Technology</a>
+<a href="#future">Future</a>
+<a href="#contact">Contact</a>
+
+</div>
+
+<!-- =========================
+HERO
+========================= -->
+
+<section id="home" class="min-h-screen flex items-center justify-center text-center px-6 md:px-12 lg:px-20">
+
+<div class="max-w-7xl mx-auto w-full">
+
+<p class="uppercase tracking-[0.4em] text-cyan-400 mb-5 animate-pulse">
+EXPERIENCE INTELLIGENCE
+</p>
+
+<h1 class="text-5xl sm:text-6xl md:text-8xl font-black leading-tight">
+ENGINEERING
+<br>
+
+<span class="text-cyan-400">
+CONSCIOUSNESS
+</span>
+
+</h1>
+
+<p class="max-w-2xl mx-auto mt-8 text-gray-400 text-lg leading-relaxed">
+
+A futuristic ecosystem exploring artificial intelligence,
+consciousness engineering, immersive systems,
+simulation technologies, cognition, and futuristic design.
+
+</p>
+
+<div class="flex gap-5 mt-10 flex-wrap justify-center">
+
+<button id="enterBtn" class="px-10 py-5 rounded-2xl bg-cyan-400 text-black font-bold glow transition hover:scale-105 active:scale-95">
+ENTER THE NEXUS
+</button>
+
+<button id="researchBtn" class="px-10 py-5 rounded-2xl border border-cyan-400 text-cyan-400 transition hover:bg-cyan-400 hover:text-black active:scale-95">
+EXPLORE RESEARCH
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- =========================
+RESEARCH
+========================= -->
+
+<section id="research" class="py-24 px-6 md:px-12 lg:px-20">
+
+<div class="max-w-7xl mx-auto w-full">
+
+<h2 class="text-4xl md:text-5xl font-bold text-center mb-20">
+Research Domains
+</h2>
+
+<div class="grid md:grid-cols-3 gap-8">
+
+<div class="card rounded-3xl p-8 reveal-card">
+
+<h3 class="text-2xl font-bold text-cyan-400 mb-4">
+Artificial Consciousness
+</h3>
+
+<p class="text-gray-400 leading-relaxed">
+Exploring machine cognition, synthetic awareness, adaptive intelligence, and digital sentience.
+</p>
+
+</div>
+
+<div class="card rounded-3xl p-8 reveal-card">
+
+<h3 class="text-2xl font-bold text-cyan-400 mb-4">
+Neural Interfaces
+</h3>
+
+<p class="text-gray-400 leading-relaxed">
+Building immersive systems connecting biological and digital intelligence.
+</p>
+
+</div>
+
+<div class="card rounded-3xl p-8 reveal-card">
+
+<h3 class="text-2xl font-bold text-cyan-400 mb-4">
+Ancient Futurism
+</h3>
+
+<p class="text-gray-400 leading-relaxed">
+Merging philosophy, spirituality, symbolism, and futuristic engineering aesthetics.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- =========================
+TECHNOLOGY
+========================= -->
+
+<section id="technology" class="py-24 px-6 md:px-12 lg:px-20 border-t border-white/10">
+
+<div class="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+
+<div>
+
+<h2 class="text-4xl md:text-5xl font-bold leading-tight mb-8">
+The Future Interface Is The Human Mind
+</h2>
+
+<p class="text-gray-400 text-lg leading-relaxed mb-8">
+
+The next generation of technology will move beyond screens.
+It will understand intention, emotion, cognition, and awareness.
+
+XINIX AXIOM explores the fusion of:
+
+</p>
+
+<ul class="space-y-4 text-gray-300">
+
+<li>• Artificial Intelligence</li>
+<li>• Cognitive Systems</li>
+<li>• Simulation Technologies</li>
+<li>• Immersive Interfaces</li>
+<li>• Intelligent Environments</li>
+<li>• Futuristic Industrial Design</li>
+
+</ul>
+
+</div>
+
+<div class="card rounded-[40px] p-10 reveal-card">
+
+<h3 class="text-3xl font-bold text-cyan-400 mb-6">
+Core Philosophy
+</h3>
+
+<p class="text-gray-400 text-lg leading-relaxed">
+
+Technology should amplify consciousness,
+expand perception,
+and deepen human experience.
+
+Not merely automate existence.
+
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- =========================
+FUTURE
+========================= -->
+
+<section id="future" class="py-24 px-6 md:px-12 lg:px-20 border-t border-white/10 text-center">
+
+<div class="max-w-7xl mx-auto w-full">
+
+<h2 class="text-4xl md:text-5xl font-bold mb-10">
+Future Projects
+</h2>
+
+<div class="grid md:grid-cols-3 gap-8 mt-16">
+
+<div class="card rounded-3xl p-8 reveal-card">
+
+<h3 class="text-2xl font-bold mb-4 text-cyan-400">
+AI Systems
+</h3>
+
+<p class="text-gray-400">
+Adaptive intelligent assistants and cognitive agents.
+</p>
+
+</div>
+
+<div class="card rounded-3xl p-8 reveal-card">
+
+<h3 class="text-2xl font-bold mb-4 text-cyan-400">
+Augmented Devices
+</h3>
+
+<p class="text-gray-400">
+Wearables and interfaces enhancing human capability.
+</p>
+
+</div>
+
+<div class="card rounded-3xl p-8 reveal-card">
+
+<h3 class="text-2xl font-bold mb-4 text-cyan-400">
+Digital Realities
+</h3>
+
+<p class="text-gray-400">
+Immersive simulations and experiential environments.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- =========================
+CONTACT
+========================= -->
+
+<section id="contact" class="py-24 px-6 md:px-12 lg:px-20 border-t border-white/10 text-center">
+
+<div class="max-w-7xl mx-auto w-full">
+
+<h2 class="text-4xl md:text-5xl font-bold mb-8">
+Join The Future
+</h2>
+
+<p class="max-w-2xl mx-auto text-gray-400 text-lg leading-relaxed mb-12">
+
+Become part of a movement exploring intelligence,
+consciousness, design, technology, and human evolution.
+
+</p>
+
+<input
+id="emailInput"
+class="w-full max-w-xl bg-black/40 border border-cyan-400/20 rounded-2xl px-6 py-5 text-white outline-none"
+placeholder="Enter your email"
+>
+
+<br>
+
+<button id="connectBtn" class="mt-8 px-10 py-5 rounded-2xl bg-cyan-400 text-black font-bold glow transition hover:scale-105 active:scale-95">
+CONNECT
+</button>
+
+</div>
+
+</section>
+
+<!-- =========================
+FOOTER
+========================= -->
+
+<footer class="border-t border-white/10 py-10 text-center text-gray-500 px-6">
+
+XINIX AXIOM — EXPERIENCE INTELLIGENCE
+
+</footer>
+
+<!-- =========================
+JAVASCRIPT
+========================= -->
+
+<script>
+
+/* =========================
+LOADER
+========================= */
+
+window.addEventListener('load', ()=>{
+
+  const loader=document.getElementById('loader');
+
+  const texts=[
+
+    'INITIALIZING CONSCIOUSNESS...',
+    'CONNECTING NEURAL SYSTEMS...',
+    'SYNCHRONIZING INTELLIGENCE...',
+    'BOOTING XINIX CORE...'
+
+  ];
+
+  let index=0;
+
+  const loaderText=document.getElementById('loaderText');
+
+  const interval=setInterval(()=>{
+
+    index++;
+
+    if(index < texts.length){
+
+      loaderText.innerText=texts[index];
+
+    }
+
+  },700);
+
+  setTimeout(()=>{
+
+    clearInterval(interval);
+
+    loader.classList.add('loader-hidden');
+
+    setTimeout(()=>{
+      loader.style.display='none';
+    },1500);
+
+  },4000);
+
+});
+
+/* =========================
+NOTIFICATION
+========================= */
+
+function showNotification(message){
+
+  const notification=document.getElementById('notification');
+
+  notification.innerText=message;
+
+  notification.classList.add('show');
+
+  setTimeout(()=>{
+    notification.classList.remove('show');
+  },3000);
+
+}
+
+/* =========================
+BUTTONS
+========================= */
+
+document.getElementById('enterBtn').addEventListener('click', ()=>{
+
+  showNotification('Entering The Nexus...');
+
+  document.getElementById('technology').scrollIntoView({
+    behavior:'smooth'
+  });
+
+});
+
+document.getElementById('researchBtn').addEventListener('click', ()=>{
+
+  showNotification('Opening Research Domains');
+
+  document.getElementById('research').scrollIntoView({
+    behavior:'smooth'
+  });
+
+});
+
+/* =========================
+CONNECT
+========================= */
+
+document.getElementById('connectBtn').addEventListener('click', ()=>{
+
+  const email=document.getElementById('emailInput').value;
+
+  if(email===''){
+
+    showNotification('Please enter your email');
+    return;
+
+  }
+
+  if(!email.includes('@')){
+
+    showNotification('Invalid email');
+    return;
+
+  }
+
+  localStorage.setItem('xinixEmail', email);
+
+  showNotification('Connection Established');
+
+  document.getElementById('emailInput').value='';
+
+});
+
+/* =========================
+RETURN VISITOR
+========================= */
+
+window.addEventListener('load', ()=>{
+
+  const saved=localStorage.getItem('xinixEmail');
+
+  if(saved){
+
+    setTimeout(()=>{
+      showNotification('Welcome Back To XINIX AXIOM');
+    },5000);
+
+  }
+
+});
+
+/* =========================
+REVEAL
+========================= */
+
+const observer=new IntersectionObserver((entries)=>{
+
+  entries.forEach(entry=>{
+
+    if(entry.isIntersecting){
+
+      entry.target.style.opacity='1';
+      entry.target.style.transform='translateY(0px)';
+
+    }
+
+  });
+
+},{
+  threshold:0.15
+});
+
+document.querySelectorAll('.reveal-card').forEach(card=>{
+
+  card.style.opacity='0';
+  card.style.transform='translateY(50px)';
+  card.style.transition='1s';
+
+  observer.observe(card);
+
+});
+
+/* =========================
+NAVBAR
+========================= */
+
+window.addEventListener('scroll', ()=>{
+
+  const navbar=document.getElementById('navbar');
+
+  if(window.scrollY > 50){
+
+    navbar.style.background='rgba(0,0,0,0.85)';
+
+  }else{
+
+    navbar.style.background='rgba(0,0,0,0.3)';
+
+  }
+
+});
+
+/* =========================
+MOBILE MENU
+========================= */
+
+const menuBtn=document.getElementById('menuBtn');
+const mobileNav=document.getElementById('mobileNav');
+
+menuBtn.addEventListener('click', ()=>{
+
+  mobileNav.classList.toggle('hidden');
+  mobileNav.classList.toggle('flex');
+
+});
+
+mobileNav.querySelectorAll('a').forEach(link=>{
+
+  link.addEventListener('click', ()=>{
+
+    mobileNav.classList.add('hidden');
+    mobileNav.classList.remove('flex');
+
+  });
+
+});
+
+/* =========================
+PARALLAX
+========================= */
+
+window.addEventListener('mousemove', (e)=>{
+
+  document.querySelectorAll('.orb').forEach((orb,index)=>{
+
+    const speed=(index+1)*0.015;
+
+    const x=(window.innerWidth - e.pageX*speed)/100;
+    const y=(window.innerHeight - e.pageY*speed)/100;
+
+    orb.style.transform=`translate(${x}px,${y}px)`;
+
+  });
+
+});
+
+</script>
+
+</body>
+</html>

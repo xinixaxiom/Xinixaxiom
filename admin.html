@@ -79,9 +79,10 @@ const supabase=window.supabase.createClient(supabaseUrl,supabaseKey);
 let editResearchId=null, editProjectId=null, editAnnouncementId=null;
 
 function login(){
- if(pw.value===PASSWORD){loginBox.classList.add('hidden');app.classList.remove('hidden');loadAll();}
- else loginMsg.innerText="Wrong password";
-}
+
+  alert("Button clicked");
+
+ }
 function logout(){location.reload();}
 
 async function saveResearch(){

@@ -80,9 +80,25 @@ let editResearchId=null, editProjectId=null, editAnnouncementId=null;
 
 function login(){
 
-  alert("Button clicked");
+  const passwordInput = document.getElementById("pw");
+  const loginBox = document.getElementById("loginBox");
+  const app = document.getElementById("app");
+  const loginMsg = document.getElementById("loginMsg");
 
- }
+  if(passwordInput.value === PASSWORD){
+
+    loginBox.classList.add("hidden");
+    app.classList.remove("hidden");
+
+    loadAll();
+
+  }else{
+
+    loginMsg.innerText = "Wrong password";
+
+  }
+
+  }
 function logout(){location.reload();}
 
 async function saveResearch(){

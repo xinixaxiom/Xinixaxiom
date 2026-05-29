@@ -116,10 +116,50 @@ const supabase=window.supabase.createClient(supabaseUrl,supabaseKey);
 
 let editResearchId=null, editProjectId=null, editAnnouncementId=null;
 
-function login(){
- if(pw.value===PASSWORD){loginBox.classList.add('hidden');app.classList.remove('hidden');loadAll();}
- else loginMsg.innerText="Wrong password";
-}
+async function login(){
+
+ const email =
+ document.getElementById('email').value;
+
+ const password =
+ document.getElementById('pw').value;
+
+ const loginMsg =
+ document.getElementById('loginMsg');
+
+ const { data, error } =
+ await supabase.auth.signInWithPassword({
+   email,
+   password
+ });
+
+ console.log("DATA:", data);
+ console.log("ERROR:", error);
+
+ if(error){
+
+   loginMsg.innerText =
+   error.message;
+
+   alert(error.message);
+
+   return;
+
+ }
+
+ alert("Login Successful");
+
+ document
+ .getElementById('loginBox')
+ .classList.add('hidden');
+
+ document
+ .getElementById('app')
+ .classList.remove('hidden');
+
+ loadAll();
+
+ }
 async function logout(){
 
  await supabase.auth.signOut();

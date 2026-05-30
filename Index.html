@@ -1,0 +1,134 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XINIX AXIOM</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* Your existing CSS from previous index.html */
+body{margin:0;background:#020617;color:white;font-family:Arial,sans-serif;overflow-x:hidden;scroll-behavior:smooth;}
+/* ... rest of your existing CSS ... */
+</style>
+</head>
+<body class="grid-bg"><!-- Loader, background, navbar, sections stay the same --><section id="research" class="py-24 px-6 md:px-12 lg:px-20">
+<div class="max-w-7xl mx-auto w-full">
+<h2 class="text-4xl md:text-5xl font-bold text-center mb-20">Research Domains</h2>
+<div id="researchContainer" class="grid md:grid-cols-3 gap-8">
+Loading Research...
+</div>
+</div>
+</section><section id="future" class="py-24 px-6 md:px-12 lg:px-20 border-t border-white/10 text-center">
+<div class="max-w-7xl mx-auto w-full">
+<h2 class="text-4xl md:text-5xl font-bold mb-10">Future Projects</h2>
+<div id="projectContainer" class="grid md:grid-cols-3 gap-8 mt-16">
+Loading Projects...
+</div>
+</div>
+</section><section id="announcements" class="py-24 px-6 md:px-12 lg:px-20 border-t border-white/10">
+<div class="max-w-7xl mx-auto">
+<h2 class="text-4xl md:text-5xl font-bold text-center mb-16">Announcements</h2>
+<div id="announcementContainer">Loading Announcements...</div>
+</div>
+</section><script>
+const supabaseUrl = "https://ioiygqwwjbirxaoktwmm.supabase.co";
+const supabaseKey = "YOUR_ANON_KEY_HERE";
+const sb = supabase.createClient(supabaseUrl, supabaseKey);
+
+// Load CMS with likes/comments integrated
+async function loadCMS(){
+  const research = await sb.from('research_articles').select('*').order('id',{ascending:false});
+  document.getElementById('researchContainer').innerHTML = (research.data || []).map(item => `
+    <div class="card rounded-3xl p-8 reveal-card">
+      <h3 class="text-2xl font-bold text-cyan-400 mb-4">${item.title}</h3>
+      <p class="text-gray-400">${item.content}</p>
+      <div class="interaction mt-4 flex gap-3 items-center">
+        <button class="likeBtn bg-cyan-400 text-black px-3 py-1 rounded" data-id="${item.id}">👍 <span class="likeCount">0</span></button>
+        <button class="commentToggleBtn bg-black/20 border border-cyan-400 px-3 py-1 rounded text-cyan-400">💬 Comments</button>
+      </div>
+      <div class="commentsSection hidden mt-2" id="comments-${item.id}">
+        <div class="existingComments mb-2"></div>
+        <input type="text" class="commentInput w-full p-2 rounded bg-black/30 text-white" placeholder="Write a comment...">
+        <button class="submitCommentBtn bg-cyan-400 px-3 py-1 rounded mt-1 text-black">Send</button>
+      </div>
+    </div>`).join('');
+
+  const projects = await sb.from('projects').select('*').order('id',{ascending:false});
+  document.getElementById('projectContainer').innerHTML = (projects.data || []).map(item => `
+    <div class="card rounded-3xl p-8 reveal-card">
+      <h3 class="text-2xl font-bold text-cyan-400 mb-4">${item.name}</h3>
+      <p class="text-gray-400">${item.description}</p>
+      <p class="text-cyan-400 mt-4">${item.status}</p>
+      <div class="interaction mt-4 flex gap-3 items-center">
+        <button class="likeBtn bg-cyan-400 text-black px-3 py-1 rounded" data-id="${item.id}">👍 <span class="likeCount">0</span></button>
+        <button class="commentToggleBtn bg-black/20 border border-cyan-400 px-3 py-1 rounded text-cyan-400">💬 Comments</button>
+      </div>
+      <div class="commentsSection hidden mt-2" id="comments-${item.id}">
+        <div class="existingComments mb-2"></div>
+        <input type="text" class="commentInput w-full p-2 rounded bg-black/30 text-white" placeholder="Write a comment...">
+        <button class="submitCommentBtn bg-cyan-400 px-3 py-1 rounded mt-1 text-black">Send</button>
+      </div>
+    </div>`).join('');
+
+  const announcements = await sb.from('announcements').select('*').order('id',{ascending:false});
+  document.getElementById('announcementContainer').innerHTML = (announcements.data || []).map(item => `
+    <div class="card rounded-3xl p-6 mb-4">
+      <h3 class="text-xl font-bold text-cyan-400">${item.title}</h3>
+      <p class="text-gray-400 mt-3">${item.message}</p>
+      <div class="interaction mt-4 flex gap-3 items-center">
+        <button class="likeBtn bg-cyan-400 text-black px-3 py-1 rounded" data-id="${item.id}">👍 <span class="likeCount">0</span></button>
+        <button class="commentToggleBtn bg-black/20 border border-cyan-400 px-3 py-1 rounded text-cyan-400">💬 Comments</button>
+      </div>
+      <div class="commentsSection hidden mt-2" id="comments-${item.id}">
+        <div class="existingComments mb-2"></div>
+        <input type="text" class="commentInput w-full p-2 rounded bg-black/30 text-white" placeholder="Write a comment...">
+        <button class="submitCommentBtn bg-cyan-400 px-3 py-1 rounded mt-1 text-black">Send</button>
+      </div>
+    </div>`).join('');
+
+  setupInteractions();
+}
+
+async function setupInteractions(){
+  document.querySelectorAll('.likeBtn').forEach(async btn => {
+    const type = btn.closest('.card').parentElement.id.includes('research') ? 'research_articles' : btn.closest('.card').parentElement.id.includes('project') ? 'projects' : 'announcements';
+    const itemId = btn.dataset.id;
+    const countSpan = btn.querySelector('.likeCount');
+
+    // Load initial likes
+    const likes = await sb.from(`${type}_likes`).select('*').eq(`${type.slice(0,-1)}_id`, itemId);
+    countSpan.innerText = likes.data.length;
+
+    btn.onclick = async () => {
+      await sb.from(`${type}_likes`).insert({ [`${type.slice(0,-1)}_id`]: itemId, user:'Anonymous' });
+      countSpan.innerText = parseInt(countSpan.innerText)+1;
+    };
+  });
+
+  document.querySelectorAll('.commentsSection').forEach(section => {
+    const itemId = section.id.split('-')[1];
+    const type = section.closest('.card').parentElement.id.includes('research') ? 'research_articles' : section.closest('.card').parentElement.id.includes('project') ? 'projects' : 'announcements';
+    const toggleBtn = section.previousElementSibling.querySelector('.commentToggleBtn');
+    const submitBtn = section.querySelector('.submitCommentBtn');
+    const input = section.querySelector('.commentInput');
+    const existingDiv = section.querySelector('.existingComments');
+
+    // Load initial comments
+    sb.from(`${type}_comments`).select('*').eq(`${type.slice(0,-1)}_id`, itemId).then(res => {
+      existingDiv.innerHTML = res.data.map(c => `<div class="text-sm text-gray-300">• ${c.comment}</div>`).join('');
+    });
+
+    toggleBtn.onclick = () => section.classList.toggle('hidden');
+
+    submitBtn.onclick = async () => {
+      if(input.value.trim()==='') return;
+      await sb.from(`${type}_comments`).insert({ [`${type.slice(0,-1)}_id`]: itemId, user:'Anonymous', comment: input.value });
+      existingDiv.innerHTML += `<div class="text-sm text-gray-300">• ${input.value}</div>`;
+      input.value = '';
+    };
+  });
+}
+
+loadCMS();
+</script></body>
+                                                                                   </html>

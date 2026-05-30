@@ -3,170 +3,173 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XINIX CORE Admin</title>
+<title>XINIX AXIOM CMS</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-body{margin:0;background:#020617;color:#fff;font-family:Arial,sans-serif}
-.bg{position:fixed;inset:0;background:radial-gradient(circle at top,#0f172a,#020617);z-index:-1}
+body{margin:0;font-family:Arial,sans-serif;background:#020617;color:white}
 .container{max-width:1200px;margin:auto;padding:20px}
 .card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(12px);padding:20px;border-radius:20px;margin-bottom:20px}
-input,textarea,select{width:100%;padding:12px;margin:6px 0;background:#0f172a;color:#fff;border:1px solid #334155;border-radius:10px;box-sizing:border-box}
+input,textarea,select{width:100%;padding:10px;margin:6px 0;background:#0f172a;color:#fff;border:1px solid #334155;border-radius:10px;box-sizing:border-box}
 button{background:#22d3ee;color:#000;border:none;padding:10px 16px;border-radius:10px;font-weight:bold;cursor:pointer;margin:4px}
-.hidden{display:none}
 h1,h2{color:#22d3ee}
+.hidden{display:none}
 .item{border-top:1px solid #334155;padding:12px 0}
 .row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
-@media(max-width:900px){.row{grid-template-columns:1fr}}
 .small{font-size:12px;color:#94a3b8}
 </style>
 </head>
 <body>
-<div class="bg"></div>
 <div class="container">
-<div id="loginBox" class="card">
-<h1>XINIX CORE COMMAND ACCESS</h1>
-<input id="email" type="email" placeholder="Email">
-<input id="pw" type="password" placeholder="Password">
-<button onclick="login()">ACCESS</button>
-<p id="loginMsg"></p>
-</div>
+  <div id="loginBox" class="card">
+    <h1>XINIX AXIOM ADMIN LOGIN</h1>
+    <input id="email" type="email" placeholder="Email">
+    <input id="pw" type="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <p id="loginMsg"></p>
+  </div>
 
-<div id="app" class="hidden">
-<div class="card">
-<h1>XINIX AXIOM ADMIN</h1>
-<button onclick="logout()">Logout</button>
-</div>
+  <div id="app" class="hidden">
+    <div class="card">
+      <h1>ADMIN DASHBOARD</h1>
+      <button onclick="logout()">Logout</button>
+    </div>
 
-<div class="row">
-<div class="card">
-<h2>Research</h2>
-<input id="rtitle" placeholder="Title">
-<input id="rcategory" placeholder="Category">
-<textarea id="rcontent" placeholder="Content"></textarea>
-<button onclick="saveResearch()">Save Research</button>
-</div>
+    <div class="row">
+      <div class="card">
+        <h2>Research</h2>
+        <input id="rtitle" placeholder="Title">
+        <input id="rcategory" placeholder="Category">
+        <textarea id="rcontent" placeholder="Content"></textarea>
+        <button onclick="saveResearch()">Save</button>
+      </div>
 
-<div class="card">
-<h2>Project</h2>
-<input id="pname" placeholder="Project Name">
-<textarea id="pdescription" placeholder="Description"></textarea>
-<select id="pstatus">
-<option>Concept</option><option>Development</option>
-<option>Testing</option><option>Released</option>
-</select>
-<button onclick="saveProject()">Save Project</button>
-</div>
+      <div class="card">
+        <h2>Projects</h2>
+        <input id="pname" placeholder="Project Name">
+        <textarea id="pdescription" placeholder="Description"></textarea>
+        <select id="pstatus">
+          <option>Concept</option>
+          <option>Development</option>
+          <option>Testing</option>
+          <option>Released</option>
+        </select>
+        <button onclick="saveProject()">Save</button>
+      </div>
 
-<div class="card">
-<h2>Announcement</h2>
-<input id="atitle" placeholder="Title">
-<textarea id="amessage" placeholder="Message"></textarea>
-<button onclick="saveAnnouncement()">Save Announcement</button>
-</div>
-</div>
+      <div class="card">
+        <h2>Announcements</h2>
+        <input id="atitle" placeholder="Title">
+        <textarea id="amessage" placeholder="Message"></textarea>
+        <button onclick="saveAnnouncement()">Save</button>
+      </div>
+    </div>
 
-<div class="card"><h2>Research Articles</h2><div id="researchList"></div></div>
-<div class="card"><h2>Projects</h2><div id="projectList"></div></div>
-<div class="card"><h2>Announcements</h2><div id="announcementList"></div></div>
-</div>
+    <div class="card"><h2>Research Articles</h2><div id="researchList"></div></div>
+    <div class="card"><h2>Projects</h2><div id="projectList"></div></div>
+    <div class="card"><h2>Announcements</h2><div id="announcementList"></div></div>
+  </div>
 </div>
 
 <script>
 const supabaseUrl = "https://ioiygqwwjbirxaoktwmm.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlvaXlncXd3amJpcnhhb2t0d21tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NTMyMDQsImV4cCI6MjA5NTUyOTIwNH0.jHRdwq1s9BS1Y0EGHDXL_OxCvW-YpggNg7miaUTnhmg";
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-// Updated initialization instance name to sb
-const sb = window.supabase.createClient(supabaseUrl, supabaseKey);
+let editResearchId = null, editProjectId = null, editAnnouncementId = null;
 
-let editResearchId=null, editProjectId=null, editAnnouncementId=null;
-
-// DOM element references
-const rtitle = document.getElementById('rtitle');
-const rcategory = document.getElementById('rcategory');
-const rcontent = document.getElementById('rcontent');
-const pname = document.getElementById('pname');
-const pdescription = document.getElementById('pdescription');
-const pstatus = document.getElementById('pstatus');
-const atitle = document.getElementById('atitle');
-const amessage = document.getElementById('amessage');
-
-async function login(){
+async function login() {
   const email = document.getElementById('email').value;
   const password = document.getElementById('pw').value;
   const loginMsg = document.getElementById('loginMsg');
 
-  const { data, error } = await sb.auth.signInWithPassword({
-    email,
-    password
-  });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if(error){
     loginMsg.innerText = error.message;
-    alert(error.message);
     return;
   }
 
-  alert("Login Successful");
   document.getElementById('loginBox').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
   loadAll();
 }
 
 async function logout(){
-  await sb.auth.signOut();
+  await supabase.auth.signOut();
   location.reload();
 }
 
 async function saveResearch(){
-  const payload={title:rtitle.value, category:rcategory.value, content:rcontent.value};
-  if(editResearchId) await sb.from('research_articles').update(payload).eq('id',editResearchId);
-  else await sb.from('research_articles').insert(payload);
+  const payload = {title: rtitle.value, category: rcategory.value, content: rcontent.value};
+  if(editResearchId) await supabase.from('research_articles').update(payload).eq('id', editResearchId);
+  else await supabase.from('research_articles').insert(payload);
   editResearchId=null; rtitle.value=''; rcategory.value=''; rcontent.value=''; loadAll();
 }
 
 async function saveProject(){
-  const payload={name:pname.value, description:pdescription.value, status:pstatus.value};
-  if(editProjectId) await sb.from('projects').update(payload).eq('id',editProjectId);
-  else await sb.from('projects').insert(payload);
+  const payload = {name: pname.value, description: pdescription.value, status: pstatus.value};
+  if(editProjectId) await supabase.from('projects').update(payload).eq('id', editProjectId);
+  else await supabase.from('projects').insert(payload);
   editProjectId=null; pname.value=''; pdescription.value=''; loadAll();
 }
 
 async function saveAnnouncement(){
-  const payload={title:atitle.value, message:amessage.value};
-  if(editAnnouncementId) await sb.from('announcements').update(payload).eq('id',editAnnouncementId);
-  else await sb.from('announcements').insert(payload);
+  const payload = {title: atitle.value, message: amessage.value};
+  if(editAnnouncementId) await supabase.from('announcements').update(payload).eq('id', editAnnouncementId);
+  else await supabase.from('announcements').insert(payload);
   editAnnouncementId=null; atitle.value=''; amessage.value=''; loadAll();
 }
 
 async function loadAll(){
-  let r=await sb.from('research_articles').select('*').order('id',{ascending:false});
-  document.getElementById('researchList').innerHTML=(r.data||[]).map(x=>`<div class=item><b>${x.title}</b><div>${x.category||''}</div><div class=small>${x.content||''}</div><button onclick="editResearch(${x.id},'${(x.title||'').replace(/'/g,"&#39;")}','${(x.category||'').replace(/'/g,"&#39;")}','${(x.content||'').replace(/'/g,"&#39;")}')">Edit</button><button onclick="deleteResearch(${x.id})">Delete</button></div>`).join('');
+  // RESEARCH
+  let r = await supabase.from('research_articles').select('*').order('id',{ascending:false});
+  researchList.innerHTML = (r.data || []).map(x => 
+    `<div class="item"><b>${x.title}</b><div>${x.category}</div>
+     <div class="small">${x.content}</div>
+     <button onclick="editResearch(${x.id},'${x.title.replace(/'/g,"&#39;")}','${x.category.replace(/'/g,"&#39;")}','${x.content.replace(/'/g,"&#39;")}')">Edit</button>
+     <button onclick="deleteResearch(${x.id})">Delete</button>
+     <button onclick="likeResearch(${x.id})">Like</button>
+     <button onclick="commentResearch(${x.id})">Comment</button>
+     </div>`).join('');
 
-  let p=await sb.from('projects').select('*').order('id',{ascending:false});
-  document.getElementById('projectList').innerHTML=(p.data||[]).map(x=>`<div class=item><b>${x.name}</b><div>${x.status}</div><button onclick="editProject(${x.id},'${(x.name||'').replace(/'/g,"&#39;")}','${(x.description||'').replace(/'/g,"&#39;")}','${(x.status||'').replace(/'/g,"&#39;")}')">Edit</button><button onclick="deleteProject(${x.id})">Delete</button></div>`).join('');
+  // PROJECTS
+  let p = await supabase.from('projects').select('*').order('id',{ascending:false});
+  projectList.innerHTML = (p.data || []).map(x => 
+    `<div class="item"><b>${x.name}</b><div>${x.status}</div>
+     <button onclick="editProject(${x.id},'${x.name.replace(/'/g,"&#39;")}','${x.description.replace(/'/g,"&#39;")}','${x.status.replace(/'/g,"&#39;")}')">Edit</button>
+     <button onclick="deleteProject(${x.id})">Delete</button>
+     <button onclick="likeProject(${x.id})">Like</button>
+     <button onclick="commentProject(${x.id})">Comment</button>
+     </div>`).join('');
 
-  let a=await sb.from('announcements').select('*').order('id',{ascending:false});
-  document.getElementById('announcementList').innerHTML=(a.data||[]).map(x=>`<div class=item><b>${x.title}</b><button onclick="editAnnouncement(${x.id},'${(x.title||'').replace(/'/g,"&#39;")}','${(x.message||'').replace(/'/g,"&#39;")}')">Edit</button><button onclick="deleteAnnouncement(${x.id})">Delete</button></div>`).join('');
+  // ANNOUNCEMENTS
+  let a = await supabase.from('announcements').select('*').order('id',{ascending:false});
+  announcementList.innerHTML = (a.data || []).map(x => 
+    `<div class="item"><b>${x.title}</b><div>${x.message}</div>
+     <button onclick="editAnnouncement(${x.id},'${x.title.replace(/'/g,"&#39;")}','${x.message.replace(/'/g,"&#39;")}')">Edit</button>
+     <button onclick="deleteAnnouncement(${x.id})">Delete</button>
+     <button onclick="likeAnnouncement(${x.id})">Like</button>
+     <button onclick="commentAnnouncement(${x.id})">Comment</button>
+     </div>`).join('');
 }
 
-function editResearch(id,t,c,ct){editResearchId=id; rtitle.value=t; rcategory.value=c; rcontent.value=ct;}
-function editProject(id,n,d,s){editProjectId=id; pname.value=n; pdescription.value=d; pstatus.value=s;}
-function editAnnouncement(id,t,m){editAnnouncementId=id; atitle.value=t; amessage.value=m;}
+// EDIT / DELETE
+function editResearch(id,t,c,ct){editResearchId=id;rtitle.value=t;rcategory.value=c;rcontent.value=ct;}
+function editProject(id,n,d,s){editProjectId=id;pname.value=n;pdescription.value=d;pstatus.value=s;}
+function editAnnouncement(id,t,m){editAnnouncementId=id;atitle.value=t;amessage.value=m;}
 
-async function deleteResearch(id){await sb.from('research_articles').delete().eq('id',id); loadAll();}
-async function deleteProject(id){await sb.from('projects').delete().eq('id',id); loadAll();}
-async function deleteAnnouncement(id){await sb.from('announcements').delete().eq('id',id); loadAll();}
+async function deleteResearch(id){await supabase.from('research_articles').delete().eq('id',id); loadAll();}
+async function deleteProject(id){await supabase.from('projects').delete().eq('id',id); loadAll();}
+async function deleteAnnouncement(id){await supabase.from('announcements').delete().eq('id',id); loadAll();}
 
-async function checkSession(){
-  const { data } = await sb.auth.getSession();
-  if(data && data.session){
-    document.getElementById('loginBox').classList.add('hidden');
-    document.getElementById('app').classList.remove('hidden');
-    loadAll();
-  }
-}
+// LIKE / COMMENT EXAMPLES
+async function likeResearch(id){ alert("Like added for Research ID "+id); }
+async function commentResearch(id){ const msg = prompt("Enter comment:"); if(msg) alert("Comment saved for Research ID "+id); }
+async function likeProject(id){ alert("Like added for Project ID "+id); }
+async function commentProject(id){ const msg = prompt("Enter comment:"); if(msg) alert("Comment saved for Project ID "+id); }
+async function likeAnnouncement(id){ alert("Like added for Announcement ID "+id); }
+async function commentAnnouncement(id){ const msg = prompt("Enter comment:"); if(msg) alert("Comment saved for Announcement ID "+id); }
 
-checkSession();
 </script>
 </body>
-</html>
+                           </html>
